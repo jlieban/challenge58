@@ -119,6 +119,64 @@
         .tb-numeric     { background: rgba(255,165,0,0.3); }
         .tb-connections { background: rgba(0,230,118,0.3); }
         .tb-ordering    { background: rgba(255,165,0,0.3); }
+        .tb-crossword   { background: rgba(255,100,180,0.25); color: #ff80c8; }
+
+        /* CROSSWORD */
+        .cw-wrap { display: flex; flex-direction: column; gap: 12px; }
+        .cw-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            padding: 4px;
+        }
+        .cw-cell {
+            position: relative;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            min-height: 42px;
+            transition: background 0.12s;
+            user-select: none;
+        }
+        .cw-cell.black { background: rgba(0,0,0,0.7); cursor: default; border-radius: 4px; }
+        .cw-cell.cw-word { background: rgba(124,110,250,0.28); }
+        .cw-cell.cw-sel { background: var(--primary) !important; }
+        .cw-cell.cw-correct { background: rgba(0,230,118,0.35) !important; }
+        .cw-num {
+            position: absolute; top: 2px; left: 3px;
+            font-size: 0.48rem; color: rgba(255,255,255,0.5);
+            font-weight: 700; line-height: 1; pointer-events: none;
+        }
+        .cw-letter {
+            font-size: 1.05rem; font-weight: 800; color: white;
+            text-transform: uppercase; pointer-events: none;
+        }
+        .cw-keyboard {
+            display: flex; flex-wrap: wrap; gap: 4px; justify-content: center;
+        }
+        .cw-key {
+            min-width: 26px; width: 30px; padding: 9px 4px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15); border-radius: 7px;
+            color: white; font-family: 'Poppins', sans-serif;
+            font-size: 0.75rem; font-weight: 600; cursor: pointer;
+            transition: background 0.1s; text-align: center;
+        }
+        .cw-key:active { background: var(--primary); transform: scale(0.92); }
+        .cw-key-del { background: rgba(255,82,82,0.2); color: #FF8A8A; width: auto; }
+        .cw-clues { display: flex; gap: 12px; margin-top: 4px; }
+        .cw-clue-col { flex: 1; }
+        .cw-clue-title { font-size: 0.62rem; font-weight: 700; color: var(--primary-light); letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase; }
+        .cw-clue-item {
+            font-size: 0.74rem; color: var(--text-muted); padding: 4px 7px;
+            border-radius: 6px; cursor: pointer; margin-bottom: 3px;
+            transition: background 0.15s; border: 1px solid transparent;
+        }
+        .cw-clue-item:hover { background: rgba(255,255,255,0.06); }
+        .cw-clue-item.cw-clue-active { background: rgba(124,110,250,0.2); color: white; border-color: rgba(124,110,250,0.4); }
 
         /* TRIVIA */
         .option-btn {
@@ -396,7 +454,13 @@
         <div class="logo-sub">Panel de mejans — Challenge 58</div>
     </div>
 
-    <div id="admin-stats" style="display:flex; gap:8px; margin-bottom:16px; flex-shrink:0;"></div>
+    <div id="admin-stats" style="display:flex; gap:8px; margin-bottom:12px; flex-shrink:0;"></div>
+
+    <!-- Admin tabs -->
+    <div style="display:flex; gap:6px; margin-bottom:14px; flex-shrink:0;">
+        <button id="atab-challenges" class="btn btn-primary btn-sm" onclick="adminSwitchTab('challenges')">⚡ Challenges</button>
+        <button id="atab-ranking"    class="btn btn-ghost   btn-sm" onclick="adminSwitchTab('ranking')">🏆 Ranking</button>
+    </div>
 
     <div class="scroll-content" id="admin-content">
         <div class="loading"><div class="spinner"></div></div>
@@ -586,6 +650,96 @@ const CHALLENGES = [
         items: ['Facebook', 'Twitter', 'Instagram', 'TikTok'],
         correctOrder: [0, 1, 2, 3],
         hints: ['2004', '2006', '2010', '2016']
+    },
+
+    // ── CRUCIGRAMA ───────────────────────────────────────────────────
+    {
+        id: 32, type: 'crossword', category: 'EMH',
+        question: 'Crucigrama EMH — completá todas las palabras',
+        rows: 8, cols: 7,
+        solution: [
+            ['M','E','J','A','N',null,null],
+            [null,null,'A','S','A','D','O'],
+            [null,null,'N',null,null,null,null],
+            [null,'N','I','M','U','S',null],
+            [null,null,'J',null,null,'H',null],
+            [null,null,null,null,null,'I',null],
+            [null,null,null,null,null,'T',null],
+            [null,null,null,null,null,'U',null]
+        ],
+        clues: {
+            across: [
+                { num: 1, row: 0, col: 0, text: 'Da las actividades en EMH' },
+                { num: 3, row: 1, col: 2, text: 'Clásica comida argentina al fuego' },
+                { num: 4, row: 3, col: 1, text: 'Valor de EMH: presencia y compromiso' }
+            ],
+            down: [
+                { num: 2, row: 0, col: 2, text: 'Participante de los grupos de Hadraja' },
+                { num: 5, row: 3, col: 5, text: 'Área de Hadraja para 4to a 6to grado' }
+            ]
+        }
+    },
+
+    // ── TRIVIA DIFÍCIL ───────────────────────────────────────────────
+    {
+        id: 33, type: 'trivia', category: 'EMH',
+        question: '¿De qué idioma viene la palabra "Haltung", uno de los valores de EMH?',
+        options: ['Hebreo', 'Ídish', 'Alemán', 'Inglés'],
+        answer: 2
+    },
+    {
+        id: 36, type: 'trivia', category: 'Cultura general',
+        question: '¿Cuál es el país con más pirámides del mundo?',
+        options: ['Egipto', 'México', 'Perú', 'Sudán'],
+        answer: 3
+    },
+    {
+        id: 37, type: 'trivia', category: 'Ciencia',
+        question: '¿Cuántos huesos tiene el cuerpo humano adulto?',
+        options: ['206', '212', '198', '224'],
+        answer: 0
+    },
+    {
+        id: 38, type: 'trivia', category: 'Historia',
+        question: '¿En qué año se fundó el Estado de Israel?',
+        options: ['1945', '1947', '1948', '1952'],
+        answer: 2
+    },
+
+    // ── CONEXIONES DIFÍCIL ───────────────────────────────────────────
+    {
+        id: 34, type: 'connections', category: 'Ciencia',
+        question: '¿Qué tienen que ver?',
+        groups: [
+            { name: '🪨 Planetas rocosos', items: ['Mercurio', 'Venus', 'Tierra', 'Marte'], color: '#FF6464' },
+            { name: '💨 Planetas gaseosos', items: ['Júpiter', 'Saturno', 'Urano', 'Neptuno'], color: '#64C8FF' },
+            { name: '🚫 No son planetas', items: ['Luna', 'Sol', 'Plutón', 'Cometa'], color: '#FFD700' }
+        ]
+    },
+    {
+        id: 39, type: 'connections', category: 'Argentina',
+        question: '¿Qué tienen que ver?',
+        groups: [
+            { name: '🇦🇷 Provincias argentinas', items: ['Jujuy', 'Salta', 'Misiones', 'Chaco'], color: '#64FF96' },
+            { name: '🌎 Países limítrofes de Argentina', items: ['Chile', 'Brasil', 'Paraguay', 'Bolivia'], color: '#FF6464' },
+            { name: '🎵 Géneros musicales argentinos', items: ['Tango', 'Cumbia', 'Folklore', 'Chacarera'], color: '#FF9664' }
+        ]
+    },
+
+    // ── ORDENAR DIFÍCIL ──────────────────────────────────────────────
+    {
+        id: 35, type: 'ordering', category: 'Geografía',
+        question: 'Ordená de mayor a menor superficie estos países',
+        items: ['Argentina', 'China', 'Brasil', 'Rusia'],
+        correctOrder: [3, 2, 1, 0],
+        hints: ['2.8M km²', '9.6M km²', '8.5M km²', '17.1M km²']
+    },
+    {
+        id: 40, type: 'ordering', category: 'Historia',
+        question: 'Ordená estos presidentes argentinos del más reciente al más antiguo (cuando asumieron)',
+        items: ['Cristina Fernández', 'Mauricio Macri', 'Néstor Kirchner', 'Javier Milei'],
+        correctOrder: [3, 1, 0, 2],
+        hints: ['2023', '2015', '2007', '2003']
     }
 ];
 
@@ -751,8 +905,9 @@ function simulateAPI(action, data) {
     }
 
     if (action === 'adminActivate') {
-        localStorage.setItem('c58_active',    String(data.challengeId));
-        localStorage.setItem('c58_published', new Date().toISOString());
+        const cid = parseInt(data.challengeId) || 0;
+        localStorage.setItem('c58_active', String(cid));
+        if (cid > 0) localStorage.setItem('c58_published', new Date().toISOString());
         return { success: true };
     }
 
@@ -815,14 +970,9 @@ function doLogout() {
 // ─────────────────────────────────────
 function enterApp() {
     $('home-username').textContent = (currentUser.nombre || currentUser.username).split(' ')[0];
-    $('home-pts').textContent = `${currentUser.totalPoints || 0} pts`;
+    $('home-pts').textContent = `${Number(currentUser.totalPoints || 0)} pts`;
     showScreen('screen-home');
     switchTab('challenge');
-}
-
-async function enterAdmin() {
-    showScreen('screen-admin');
-    loadAdminPanel();
 }
 
 // ─────────────────────────────────────
@@ -951,6 +1101,9 @@ function renderPlayingChallenge() {
     } else if (ch.type === 'ordering') {
         html += renderOrdering(ch);
         $('playing-submit').style.display = 'none'; // shows after all slots filled
+    } else if (ch.type === 'crossword') {
+        html += renderCrossword(ch);
+        $('playing-submit').style.display = 'none'; // auto-submits when grid is full
     }
 
     $('playing-content').innerHTML = html;
@@ -1116,6 +1269,189 @@ function placeInSlot(slotIdx) {
     }
 }
 
+// ── CROSSWORD ────────────────────────
+function renderCrossword(ch) {
+    cwUserGrid = ch.solution.map(row => row.map(cell => cell === null ? null : ''));
+
+    // Map (row,col) → clue number
+    const numMap = {};
+    [...ch.clues.across, ...ch.clues.down].forEach(cl => {
+        numMap[`${cl.row},${cl.col}`] = cl.num;
+    });
+
+    let html = '<div class="cw-wrap">';
+    html += '<div class="cw-grid">';
+    for (let r = 0; r < ch.rows; r++) {
+        for (let c = 0; c < ch.cols; c++) {
+            if (ch.solution[r][c] === null) {
+                html += '<div class="cw-cell black"></div>';
+            } else {
+                const num = numMap[`${r},${c}`] || '';
+                html += `<div class="cw-cell" id="cwc-${r}-${c}" onclick="cwTap(${r},${c})">
+                    ${num ? `<span class="cw-num">${num}</span>` : ''}
+                    <span class="cw-letter" id="cwl-${r}-${c}"></span>
+                </div>`;
+            }
+        }
+    }
+    html += '</div>'; // cw-grid
+
+    // QWERTY keyboard
+    html += '<div class="cw-keyboard" style="display:flex;flex-direction:column;gap:4px;">';
+    [['Q','W','E','R','T','Y','U','I','O','P'],
+     ['A','S','D','F','G','H','J','K','L'],
+     ['Z','X','C','V','B','N','M']].forEach(rowKeys => {
+        html += '<div style="display:flex;gap:4px;justify-content:center;">';
+        rowKeys.forEach(k => {
+            html += `<button class="cw-key" onclick="cwInput('${k}')">${k}</button>`;
+        });
+        html += '</div>';
+    });
+    html += '<div style="display:flex;justify-content:center;">';
+    html += `<button class="cw-key cw-key-del" onclick="cwInput('DEL')" style="padding:9px 18px;min-width:80px;">⌫ Borrar</button>`;
+    html += '</div>';
+    html += '</div>';
+
+    // Clues
+    html += '<div class="cw-clues">';
+    html += '<div class="cw-clue-col"><div class="cw-clue-title">→ Horizontal</div>';
+    ch.clues.across.forEach(cl => {
+        html += `<div class="cw-clue-item" id="cwci-a-${cl.num}" onclick="cwSelectClue('across',${cl.num},${cl.row},${cl.col})">${cl.num}. ${cl.text}</div>`;
+    });
+    html += '</div>';
+    html += '<div class="cw-clue-col"><div class="cw-clue-title">↓ Vertical</div>';
+    ch.clues.down.forEach(cl => {
+        html += `<div class="cw-clue-item" id="cwci-d-${cl.num}" onclick="cwSelectClue('down',${cl.num},${cl.row},${cl.col})">${cl.num}. ${cl.text}</div>`;
+    });
+    html += '</div></div>'; // cw-clues
+    html += '</div>'; // cw-wrap
+    return html;
+}
+
+function cwTap(r, c) {
+    if (cwSelRow === r && cwSelCol === c) {
+        cwDir = cwDir === 'across' ? 'down' : 'across';
+    } else {
+        cwSelRow = r; cwSelCol = c;
+    }
+    cwHighlight();
+}
+
+function cwSelectClue(dir, num, row, col) {
+    cwDir = dir; cwSelRow = row; cwSelCol = col;
+    cwHighlight();
+    // Scroll grid into view
+    document.getElementById(`cwc-${row}-${col}`)?.scrollIntoView({ block: 'nearest' });
+}
+
+function cwGetWordCells(r, c, dir, ch) {
+    const cells = [];
+    if (dir === 'across') {
+        let sc = c;
+        while (sc > 0 && ch.solution[r][sc-1] !== null) sc--;
+        let cc = sc;
+        while (cc < ch.cols && ch.solution[r][cc] !== null) { cells.push([r, cc]); cc++; }
+    } else {
+        let sr = r;
+        while (sr > 0 && ch.solution[sr-1][c] !== null) sr--;
+        let rr = sr;
+        while (rr < ch.rows && ch.solution[rr][c] !== null) { cells.push([rr, c]); rr++; }
+    }
+    return cells;
+}
+
+function cwHighlight() {
+    const ch = currentChallenge;
+    document.querySelectorAll('.cw-cell:not(.black)').forEach(el => el.classList.remove('cw-sel','cw-word'));
+    document.querySelectorAll('.cw-clue-item').forEach(el => el.classList.remove('cw-clue-active'));
+    if (cwSelRow < 0) return;
+
+    const wordCells = cwGetWordCells(cwSelRow, cwSelCol, cwDir, ch);
+    wordCells.forEach(([wr, wc]) => $(`cwc-${wr}-${wc}`)?.classList.add('cw-word'));
+    $(`cwc-${cwSelRow}-${cwSelCol}`)?.classList.remove('cw-word');
+    $(`cwc-${cwSelRow}-${cwSelCol}`)?.classList.add('cw-sel');
+
+    // Highlight clue
+    if (wordCells.length) {
+        const [sr, sc] = wordCells[0];
+        const clues = cwDir === 'across' ? ch.clues.across : ch.clues.down;
+        const active = clues.find(cl => cl.row === sr && cl.col === sc);
+        if (active) $(`cwci-${cwDir==='across'?'a':'d'}-${active.num}`)?.classList.add('cw-clue-active');
+    }
+}
+
+function cwInput(letter) {
+    if (cwSelRow < 0) return;
+    const ch = currentChallenge;
+    if (ch.solution[cwSelRow]?.[cwSelCol] === null) return;
+
+    if (letter === 'DEL') {
+        if (cwUserGrid[cwSelRow][cwSelCol] !== '') {
+            cwUserGrid[cwSelRow][cwSelCol] = '';
+            const el = $(`cwl-${cwSelRow}-${cwSelCol}`);
+            if (el) el.textContent = '';
+            $(`cwc-${cwSelRow}-${cwSelCol}`)?.classList.remove('cw-correct');
+        } else {
+            cwRetreat(ch);
+        }
+    } else {
+        const L = letter.toUpperCase();
+        cwUserGrid[cwSelRow][cwSelCol] = L;
+        const el = $(`cwl-${cwSelRow}-${cwSelCol}`);
+        if (el) el.textContent = L;
+        // Color feedback
+        const cell = $(`cwc-${cwSelRow}-${cwSelCol}`);
+        if (cell) {
+            cell.classList.toggle('cw-correct', L === ch.solution[cwSelRow][cwSelCol]);
+        }
+        cwAdvance(ch);
+        cwCheckComplete(ch);
+    }
+}
+
+function cwAdvance(ch) {
+    const wordCells = cwGetWordCells(cwSelRow, cwSelCol, cwDir, ch);
+    const idx = wordCells.findIndex(([r,c]) => r === cwSelRow && c === cwSelCol);
+    if (idx >= 0 && idx < wordCells.length - 1) {
+        [cwSelRow, cwSelCol] = wordCells[idx + 1];
+        cwHighlight();
+    }
+}
+
+function cwRetreat(ch) {
+    const wordCells = cwGetWordCells(cwSelRow, cwSelCol, cwDir, ch);
+    const idx = wordCells.findIndex(([r,c]) => r === cwSelRow && c === cwSelCol);
+    if (idx > 0) {
+        [cwSelRow, cwSelCol] = wordCells[idx - 1];
+        cwUserGrid[cwSelRow][cwSelCol] = '';
+        const el = $(`cwl-${cwSelRow}-${cwSelCol}`);
+        if (el) el.textContent = '';
+        $(`cwc-${cwSelRow}-${cwSelCol}`)?.classList.remove('cw-correct');
+        cwHighlight();
+    }
+}
+
+function cwCheckComplete(ch) {
+    for (let r = 0; r < ch.rows; r++) {
+        for (let c = 0; c < ch.cols; c++) {
+            if (ch.solution[r][c] !== null && cwUserGrid[r][c] === '') return;
+        }
+    }
+    setTimeout(doSubmit, 600);
+}
+
+// Physical keyboard support for crossword
+document.addEventListener('keydown', function(e) {
+    if (!currentChallenge || currentChallenge.type !== 'crossword' || cwSelRow < 0) return;
+    const ch = currentChallenge;
+    if (e.key === 'Backspace') { e.preventDefault(); cwInput('DEL'); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); cwDir='across'; cwAdvance(ch); cwHighlight(); }
+    else if (e.key === 'ArrowLeft')  { e.preventDefault(); cwDir='across'; cwRetreat(ch); cwHighlight(); }
+    else if (e.key === 'ArrowDown')  { e.preventDefault(); cwDir='down';   cwAdvance(ch); cwHighlight(); }
+    else if (e.key === 'ArrowUp')    { e.preventDefault(); cwDir='down';   cwRetreat(ch); cwHighlight(); }
+    else if (e.key.length === 1 && /[a-zA-ZñÑ]/.test(e.key)) { cwInput(e.key); }
+});
+
 // ─────────────────────────────────────
 // SUBMIT & SCORING
 // ─────────────────────────────────────
@@ -1154,6 +1490,19 @@ async function doSubmit() {
         });
         accuracyScore = Math.round((correctCount / ch.items.length) * 100);
         answerData    = JSON.stringify(orderedSlots);
+
+    } else if (ch.type === 'crossword') {
+        let correct = 0, total = 0;
+        for (let r = 0; r < ch.rows; r++) {
+            for (let c = 0; c < ch.cols; c++) {
+                if (ch.solution[r][c] !== null) {
+                    total++;
+                    if (cwUserGrid[r] && cwUserGrid[r][c] === ch.solution[r][c]) correct++;
+                }
+            }
+        }
+        accuracyScore = total > 0 ? Math.round((correct / total) * 100) : 0;
+        answerData    = `${correct}/${total}`;
     }
 
     const finalScore = Math.round(accuracyScore * speedMult);
@@ -1169,7 +1518,7 @@ async function doSubmit() {
             accuracy: accuracyScore, speedMultiplier: speedMult,
             timeSeconds: elapsedSec
         });
-        currentUser.totalPoints = (currentUser.totalPoints || 0) + finalScore;
+        currentUser.totalPoints = Number(currentUser.totalPoints || 0) + finalScore;
         saveUser(currentUser);
         $('home-pts').textContent = `${currentUser.totalPoints} pts`;
     }
@@ -1256,6 +1605,24 @@ function loadHistory() {
 // ─────────────────────────────────────
 // ADMIN PANEL
 // ─────────────────────────────────────
+let adminCurrentTab = 'challenges';
+
+async function enterAdmin() {
+    showScreen('screen-admin');
+    adminSwitchTab('challenges');
+    loadAdminPanel();
+}
+
+function adminSwitchTab(tab) {
+    adminCurrentTab = tab;
+    ['challenges','ranking'].forEach(t => {
+        const btn = $(`atab-${t}`);
+        if (btn) { btn.className = `btn btn-sm ${t === tab ? 'btn-primary' : 'btn-ghost'}`; }
+    });
+    if (tab === 'challenges') loadAdminPanel();
+    else                      loadAdminLeaderboard();
+}
+
 async function loadAdminPanel() {
     $('admin-content').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
     const res = await apiCall('adminGetChallenges');
@@ -1273,7 +1640,7 @@ async function loadAdminPanel() {
             <div style="font-size:0.7rem; color:var(--text-muted);">CHALLENGES TOTALES</div>
         </div>`;
 
-    let html = `<div style="font-size:0.82rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Elegí un challenge para activar:</div>`;
+    let html = `<div style="font-size:0.82rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Challenges disponibles:</div>`;
     challenges.forEach(ch => {
         const isActive = ch.id === activeId;
         html += `
@@ -1284,11 +1651,21 @@ async function loadAdminPanel() {
                 </div>
                 <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:1px;">${ch.category}</div>
                 <div style="font-weight:600; font-size:0.88rem; margin-bottom:10px;">${ch.question}</div>
-                <button class="btn ${isActive ? 'btn-ghost' : 'btn-primary'} btn-sm" onclick="adminActivate(${ch.id})">
-                    ${isActive ? '✓ Challenge activo' : 'Activar →'}
-                </button>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn btn-primary btn-sm" onclick="adminActivate(${ch.id})" style="flex:1;">
+                        ${isActive ? '↺ Reactivar' : 'Activar →'}
+                    </button>
+                    ${isActive ? `<button class="btn btn-danger btn-sm" onclick="adminDeactivate()" style="flex:1;">⏸ Desactivar</button>` : ''}
+                </div>
             </div>`;
     });
+
+    if (activeId) {
+        html += `<div style="margin-top:8px; padding:10px 14px; background:rgba(255,82,82,0.08); border:1px solid rgba(255,82,82,0.2); border-radius:12px; font-size:0.78rem; color:var(--text-muted);">
+            💡 Desactivar deja sin challenge activo — los janijim verán "sin challenge por ahora"
+        </div>`;
+    }
+
     $('admin-content').innerHTML = html;
 }
 
@@ -1296,13 +1673,50 @@ async function adminActivate(id) {
     const res = await apiCall('adminActivate', { challengeId: id });
     if (res.success) {
         loadAdminPanel();
-        // small toast
-        const t = document.createElement('div');
-        t.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#00E676;color:#0a0a1a;padding:10px 20px;border-radius:20px;font-weight:700;font-size:0.85rem;z-index:9999;';
-        t.textContent = '✓ Challenge activado — ¡Compartí el link! 📲';
-        document.body.appendChild(t);
-        setTimeout(() => t.remove(), 3000);
+        adminToast('✓ Challenge activado — ¡Compartí el link! 📲', '#00E676');
     }
+}
+
+async function adminDeactivate() {
+    const res = await apiCall('adminActivate', { challengeId: 0 });
+    if (res.success) {
+        loadAdminPanel();
+        adminToast('⏸ Challenge desactivado', '#FF8A8A');
+    }
+}
+
+function adminToast(msg, color = '#00E676') {
+    const t = document.createElement('div');
+    t.style.cssText = `position:fixed;top:20px;left:50%;transform:translateX(-50%);background:${color};color:#0a0a1a;padding:10px 20px;border-radius:20px;font-weight:700;font-size:0.85rem;z-index:9999;white-space:nowrap;`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
+
+async function loadAdminLeaderboard() {
+    $('admin-content').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    const res = await apiCall('leaderboard');
+    if (!res.success || !res.leaderboard) {
+        $('admin-content').innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:20px;">Sin datos aún</div>';
+        return;
+    }
+    const board = res.leaderboard;
+    const medals = ['🥇','🥈','🥉'];
+    let html = `<div style="font-size:0.82rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">${board.length} participantes</div>`;
+    board.forEach((u, i) => {
+        const isTop = i < 3;
+        html += `
+            <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; background:${isTop ? 'rgba(255,215,0,0.08)' : 'rgba(255,255,255,0.04)'}; border-radius:12px; margin-bottom:6px; border:1px solid ${isTop ? 'rgba(255,215,0,0.2)' : 'rgba(255,255,255,0.08)'};">
+                <div style="font-size:${isTop ? '1.3rem' : '0.9rem'}; font-weight:800; width:28px; text-align:center; color:${isTop ? 'var(--gold)' : 'var(--text-muted)'};">${medals[i] || `#${i+1}`}</div>
+                <div style="flex:1;">
+                    <div style="font-weight:600; font-size:0.88rem;">${u.nombre || u.username}</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted);">@${u.username}</div>
+                </div>
+                <div style="font-weight:800; font-size:1.1rem; color:${isTop ? 'var(--gold)' : 'var(--primary-light)'};">${Number(u.points || 0)}</div>
+            </div>`;
+    });
+    if (board.length === 0) html = '<div style="color:var(--text-muted); text-align:center; padding:20px;">Todavía no hay participantes</div>';
+    $('admin-content').innerHTML = html;
 }
 
 // ─────────────────────────────────────
