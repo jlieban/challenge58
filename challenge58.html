@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Challenge 58</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0D0D2B;
+            --bg2: #1a1a4a;
+            --card: rgba(255,255,255,0.06);
+            --card-border: rgba(255,255,255,0.12);
+            --primary: #7C6EFA;
+            --primary-light: #9D91FB;
+            --gold: #FFD700;
+            --green: #00E676;
+            --red: #FF5252;
+            --text: #FFFFFF;
+            --text-muted: rgba(255,255,255,0.55);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, var(--bg2) 100%);
+            min-height: 100vh;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        .screen {
+            display: none;
+            min-height: 100vh;
+            padding: 16px 20px;
+            max-width: 480px;
+            margin: 0 auto;
+            flex-direction: column;
+        }
+        .screen.active { display: flex; animation: slideIn 0.3s ease; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* HEADER */
+        .logo { font-size: 2.4rem; font-weight: 900; letter-spacing: -1px; line-height: 1; }
+        .logo span { color: var(--gold); }
+        .logo-sub { font-size: 0.7rem; letter-spacing: 4px; text-transform: uppercase; color: var(--text-muted); margin-top: 2px; }
+
+        /* CARD */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 22px;
+            backdrop-filter: blur(12px);
+        }
+
+        /* INPUTS */
+        .input-group { margin-bottom: 14px; }
+        .input-group label { display: block; font-size: 0.72rem; color: var(--text-muted); margin-bottom: 7px; text-transform: uppercase; letter-spacing: 1px; }
+        input {
+            width: 100%;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 12px;
+            padding: 13px 15px;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus { border-color: var(--primary); }
+        input::placeholder { color: rgba(255,255,255,0.28); }
+
+        /* BUTTONS */
+        .btn {
+            width: 100%; padding: 15px;
+            border-radius: 14px; border: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem; font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.12s, opacity 0.12s;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: linear-gradient(135deg, #7C6EFA 0%, #5A4EF0 100%); color: white; }
+        .btn-gold    { background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1a1a1a; }
+        .btn-ghost   { background: transparent; border: 1px solid rgba(255,255,255,0.18); color: var(--text-muted); }
+        .btn-sm      { padding: 10px 18px; font-size: 0.82rem; width: auto; }
+        .btn-danger  { background: rgba(255,82,82,0.2); border: 1px solid rgba(255,82,82,0.4); color: #FF8A8A; }
+        .mt-10 { margin-top: 10px; }
+        .mt-16 { margin-top: 16px; }
+        .mt-20 { margin-top: 20px; }
+        .mt-auto { margin-top: auto; }
+
+        /* MESSAGES */
+        .msg { padding: 11px 15px; border-radius: 10px; font-size: 0.82rem; margin-bottom: 12px; }
+        .msg-error   { background: rgba(255,82,82,0.14); border: 1px solid rgba(255,82,82,0.3); color: #FF8A8A; }
+        .msg-success { background: rgba(0,230,118,0.14); border: 1px solid rgba(0,230,118,0.3); color: #00E676; }
+
+        /* DIVIDER */
+        .divider { display: flex; align-items: center; gap: 10px; margin: 18px 0; color: var(--text-muted); font-size: 0.78rem; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.1); }
+
+        /* TIMER */
+        .timer-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.08); border-radius: 20px; padding: 6px 13px; font-size: 0.82rem; font-weight: 600; }
+        .timer-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+        /* CHALLENGE CARD */
+        .challenge-category { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--primary-light); margin-bottom: 6px; }
+        .challenge-question  { font-size: 1.15rem; font-weight: 600; line-height: 1.45; margin-bottom: 20px; }
+        .type-badge { display: inline-block; padding: 3px 11px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+        .tb-trivia      { background: rgba(124,110,250,0.3); }
+        .tb-numeric     { background: rgba(255,165,0,0.3); }
+        .tb-connections { background: rgba(0,230,118,0.3); }
+        .tb-ordering    { background: rgba(255,165,0,0.3); }
+
+        /* TRIVIA */
+        .option-btn {
+            width: 100%; padding: 14px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.11);
+            border-radius: 14px; color: white;
+            font-family: 'Poppins', sans-serif; font-size: 0.92rem;
+            text-align: left; cursor: pointer; margin-bottom: 9px;
+            transition: all 0.18s; display: flex; align-items: center; gap: 12px;
+        }
+        .option-btn:hover  { background: rgba(255,255,255,0.09); border-color: var(--primary); }
+        .option-btn.selected { background: rgba(124,110,250,0.28); border-color: var(--primary); }
+        .option-btn.correct  { background: rgba(0,230,118,0.2); border-color: var(--green); }
+        .option-btn.wrong    { background: rgba(255,82,82,0.2); border-color: var(--red); }
+        .option-letter { width: 28px; height: 28px; border-radius: 8px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.78rem; flex-shrink: 0; }
+
+        /* NUMERIC */
+        .numeric-input { font-size: 2.2rem; font-weight: 700; text-align: center; padding: 18px; letter-spacing: 2px; }
+
+        /* CONNECTIONS */
+        .connections-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+        .connection-item {
+            padding: 13px 8px; background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.11);
+            border-radius: 12px; text-align: center;
+            font-size: 0.82rem; font-weight: 500;
+            cursor: pointer; transition: all 0.18s; user-select: none;
+        }
+        .connection-item:hover   { background: rgba(255,255,255,0.1); }
+        .connection-item.selected{ background: rgba(124,110,250,0.38); border-color: var(--primary); transform: scale(1.02); }
+        .connection-item.solved  { opacity: 0.38; cursor: default; pointer-events: none; }
+        .connection-item.shake   { animation: shake 0.4s ease; }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+        .solved-group { border-radius: 12px; padding: 11px 15px; margin-bottom: 8px; text-align: center; }
+        .solved-group-name  { font-weight: 700; font-size: 0.88rem; }
+        .solved-group-items { font-size: 0.76rem; opacity: 0.8; margin-top: 3px; }
+
+        /* ORDERING */
+        .order-slot {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1.5px dashed rgba(255,255,255,0.14);
+            border-radius: 12px; margin-bottom: 8px;
+            min-height: 50px; cursor: pointer; transition: all 0.18s;
+        }
+        .order-slot.has-item  { background: rgba(255,255,255,0.07); border-style: solid; border-color: rgba(255,255,255,0.2); }
+        .order-slot.active-slot { border-color: var(--primary); background: rgba(124,110,250,0.14); }
+        .slot-number { width: 26px; height: 26px; border-radius: 7px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.76rem; flex-shrink: 0; color: var(--text-muted); }
+        .order-items-pool { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+        .order-item {
+            padding: 9px 14px;
+            background: rgba(124,110,250,0.18);
+            border: 1px solid rgba(124,110,250,0.38);
+            border-radius: 10px; font-size: 0.82rem; font-weight: 500;
+            cursor: pointer; transition: all 0.18s; user-select: none;
+        }
+        .order-item:hover { background: rgba(124,110,250,0.3); }
+        .order-item.picked { background: rgba(124,110,250,0.5); border-color: var(--primary); transform: scale(1.04); }
+
+        /* RESULT */
+        .result-emoji { font-size: 3.5rem; text-align: center; margin-bottom: 6px; }
+        .score-big { font-size: 4.5rem; font-weight: 900; color: var(--gold); text-align: center; line-height: 1; }
+        .score-label { text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 4px; letter-spacing: 2px; text-transform: uppercase; }
+        .score-breakdown { display: flex; gap: 10px; justify-content: center; margin-top: 18px; }
+        .score-pill { background: rgba(255,255,255,0.07); border-radius: 14px; padding: 10px 16px; font-size: 0.85rem; text-align: center; min-width: 72px; }
+        .score-pill strong { display: block; font-size: 1rem; font-weight: 700; }
+        .score-pill span { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; display: block; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* LEADERBOARD */
+        .lb-row { display: flex; align-items: center; padding: 12px 14px; border-radius: 12px; margin-bottom: 7px; background: rgba(255,255,255,0.04); gap: 11px; }
+        .lb-row.me { background: rgba(124,110,250,0.14); border: 1px solid rgba(124,110,250,0.3); }
+        .lb-rank { font-weight: 800; font-size: 1rem; width: 26px; text-align: center; flex-shrink: 0; }
+        .lb-avatar { width: 36px; height: 36px; border-radius: 10px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.82rem; flex-shrink: 0; }
+        .lb-name { flex: 1; font-weight: 500; font-size: 0.88rem; }
+        .lb-pts  { font-weight: 700; font-size: 0.92rem; color: var(--gold); }
+
+        /* BOTTOM NAV */
+        .bottom-nav { display: flex; gap: 7px; padding: 14px 0 6px; margin-top: auto; flex-shrink: 0; }
+        .nav-btn { flex: 1; padding: 11px 6px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 12px; color: var(--text-muted); font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: all 0.18s; }
+        .nav-btn.active { background: rgba(124,110,250,0.2); border-color: var(--primary); color: white; }
+
+        /* LOADING */
+        .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 40px; color: var(--text-muted); }
+        .spinner { width: 34px; height: 34px; border: 3px solid rgba(255,255,255,0.08); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* EMPTY STATE */
+        .empty-state { text-align: center; padding: 36px 20px; color: var(--text-muted); }
+        .empty-icon  { font-size: 2.8rem; margin-bottom: 12px; }
+
+        /* ADMIN */
+        .admin-card { padding: 14px; background: rgba(255,255,255,0.04); border-radius: 12px; margin-bottom: 9px; border: 1px solid rgba(255,255,255,0.08); }
+        .admin-card.active-challenge { border-color: var(--gold); background: rgba(255,215,0,0.05); }
+
+        /* SCROLL */
+        .scroll-content { flex: 1; overflow-y: auto; padding-bottom: 8px; }
+        .scroll-content::-webkit-scrollbar { width: 0; }
+
+        /* MISC */
+        .text-muted { color: var(--text-muted); }
+        .text-gold  { color: var(--gold); }
+        .fw-700 { font-weight: 700; }
+        .fs-sm  { font-size: 0.82rem; }
+        .fs-xs  { font-size: 0.72rem; }
+        .hint-box { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 14px; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px; }
+
+        /* SPEED METER */
+        .speed-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); margin-top: 8px; overflow: hidden; }
+        .speed-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--green), var(--gold)); transition: width 1s linear; }
+    </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════
+     SCREEN: LOGIN
+═════════════════════════════════════ -->
+<div id="screen-login" class="screen">
+    <div style="text-align:center; padding: 36px 0 24px;">
+        <div class="logo">CHALLENGE <span>58</span></div>
+        <div class="logo-sub">EMH Hacoaj · Camada 58</div>
+    </div>
+
+    <div class="card">
+        <div id="login-error" class="msg msg-error" style="display:none"></div>
+        <div class="input-group">
+            <label>Usuario</label>
+            <input type="text" id="login-username" placeholder="Tu usuario" autocomplete="off" autocapitalize="none" spellcheck="false">
+        </div>
+        <div class="input-group">
+            <label>PIN</label>
+            <input type="password" id="login-pin" placeholder="4 dígitos" maxlength="4" inputmode="numeric">
+        </div>
+        <button class="btn btn-primary" onclick="doLogin()">Entrar →</button>
+    </div>
+
+    <div class="divider">¿Primera vez?</div>
+    <button class="btn btn-ghost" onclick="showScreen('screen-register')">Crear cuenta</button>
+
+    <div style="text-align:center; margin-top:auto; padding: 20px 0 6px;">
+        <button style="background:none;border:none;color:rgba(255,255,255,0.15);font-size:0.75rem;cursor:pointer;" onclick="showAdminEntry()">⚙ admin</button>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN: REGISTER
+═════════════════════════════════════ -->
+<div id="screen-register" class="screen">
+    <div style="padding: 24px 0 20px;">
+        <div class="logo" style="font-size:1.9rem;">CHALLENGE <span>58</span></div>
+        <div style="font-size:1.1rem; font-weight:700; margin-top:14px;">Crear cuenta</div>
+        <div class="fs-sm text-muted" style="margin-top:4px;">Registrate una sola vez y tu puntaje queda guardado siempre</div>
+    </div>
+
+    <div class="card">
+        <div id="register-error" class="msg msg-error" style="display:none"></div>
+        <div class="input-group">
+            <label>Nombre y apellido</label>
+            <input type="text" id="reg-nombre" placeholder="Ej: Lucía Rodríguez">
+        </div>
+        <div class="input-group">
+            <label>Usuario (sin espacios)</label>
+            <input type="text" id="reg-username" placeholder="Ej: luci.r" autocapitalize="none" spellcheck="false">
+        </div>
+        <div class="input-group">
+            <label>PIN — 4 dígitos</label>
+            <input type="password" id="reg-pin" placeholder="Elegí 4 dígitos" maxlength="4" inputmode="numeric">
+        </div>
+        <div class="input-group">
+            <label>Confirmar PIN</label>
+            <input type="password" id="reg-pin2" placeholder="Repetí el PIN" maxlength="4" inputmode="numeric">
+        </div>
+        <button class="btn btn-primary" onclick="doRegister()">Registrarme</button>
+    </div>
+
+    <button class="btn btn-ghost mt-10" onclick="showScreen('screen-login')">← Volver</button>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN: HOME
+═════════════════════════════════════ -->
+<div id="screen-home" class="screen">
+    <!-- Top bar -->
+    <div style="display:flex; justify-content:space-between; align-items:center; padding: 18px 0 14px; flex-shrink:0;">
+        <div>
+            <div class="logo" style="font-size:1.6rem;">CHALLENGE <span>58</span></div>
+        </div>
+        <div style="text-align:right;">
+            <div id="home-username" style="font-weight:600; font-size:0.88rem;"></div>
+            <div style="display:flex; align-items:center; gap:8px; justify-content:flex-end;">
+                <div id="home-pts" style="color:var(--gold); font-size:0.78rem; font-weight:700;"></div>
+                <button onclick="doLogout()" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:0.72rem;cursor:pointer;padding:2px 0;" title="Cerrar sesión">salir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dynamic content -->
+    <div id="home-content" class="scroll-content">
+        <div class="loading"><div class="spinner"></div></div>
+    </div>
+
+    <!-- Nav -->
+    <div class="bottom-nav">
+        <button class="nav-btn active" id="nav-challenge"   onclick="switchTab('challenge')">🎯 Desafío</button>
+        <button class="nav-btn"         id="nav-leaderboard" onclick="switchTab('leaderboard')">🏆 Ranking</button>
+        <button class="nav-btn"         id="nav-history"     onclick="switchTab('history')">📊 Historial</button>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN: PLAYING
+═════════════════════════════════════ -->
+<div id="screen-playing" class="screen">
+    <!-- Header row -->
+    <div style="display:flex; align-items:center; justify-content:space-between; padding: 14px 0 10px; flex-shrink:0;">
+        <div>
+            <div id="playing-category" class="challenge-category"></div>
+            <div id="playing-type-label" style="font-size:0.76rem; color:var(--text-muted);"></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <div id="playing-timer" class="timer-badge">
+                <div class="timer-dot"></div>
+                <span id="timer-display">0:00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Challenge content -->
+    <div id="playing-content" class="scroll-content"></div>
+
+    <!-- Submit button (shown for numeric + ordering) -->
+    <div id="playing-submit" style="padding: 12px 0; flex-shrink:0; display:none;">
+        <button class="btn btn-gold" onclick="doSubmit()">Confirmar respuesta ✓</button>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN: RESULT
+═════════════════════════════════════ -->
+<div id="screen-result" class="screen" style="align-items:center; justify-content:center;">
+    <div class="result-emoji" id="result-emoji">🎉</div>
+    <div class="score-big"   id="result-score">0</div>
+    <div class="score-label">PUNTOS</div>
+
+    <div class="score-breakdown">
+        <div class="score-pill">
+            <strong id="result-accuracy">0%</strong>
+            <span>Precisión</span>
+        </div>
+        <div class="score-pill">
+            <strong id="result-speed">×1.0</strong>
+            <span>Velocidad</span>
+        </div>
+        <div class="score-pill">
+            <strong id="result-time">0s</strong>
+            <span>Tu tiempo</span>
+        </div>
+    </div>
+
+    <div id="result-message" style="margin-top:18px; color:var(--text-muted); font-size:0.88rem; text-align:center; max-width:280px;"></div>
+
+    <div style="margin-top:28px; width:100%; max-width:320px;">
+        <button class="btn btn-primary" onclick="showHomeTab('leaderboard')">Ver ranking 🏆</button>
+        <button class="btn btn-ghost mt-10" onclick="showHomeTab('challenge')">← Volver al inicio</button>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN: ADMIN
+═════════════════════════════════════ -->
+<div id="screen-admin" class="screen">
+    <div style="padding: 20px 0 16px; flex-shrink:0;">
+        <div class="logo" style="font-size:1.5rem;">⚙️ ADMIN</div>
+        <div class="logo-sub">Panel de mejans — Challenge 58</div>
+    </div>
+
+    <div id="admin-stats" style="display:flex; gap:8px; margin-bottom:16px; flex-shrink:0;"></div>
+
+    <div class="scroll-content" id="admin-content">
+        <div class="loading"><div class="spinner"></div></div>
+    </div>
+
+    <button class="btn btn-ghost mt-10" style="flex-shrink:0;" onclick="doLogout()">← Salir</button>
+</div>
+
+<!-- ════════════════════════════════════
+     JAVASCRIPT
+═════════════════════════════════════ -->
+<script>
+// ─────────────────────────────────────
+// CONFIG  —  pegá tu URL de Apps Script aquí cuando lo configures
+// ─────────────────────────────────────
+const API_URL    = 'https://script.google.com/macros/s/AKfycbwVZRYPiHVA01M3XxIYLUy5pC8CKrcgFXZfcl8G3jgbSWOrRXhRVT29B1crs4Y1E6j-OA/exec';
+const ADMIN_PIN  = '5800';   // PIN para entrar al panel admin (cambialo si querés)
+
+// ─────────────────────────────────────
+// CHALLENGES PRE-CARGADOS
+// ─────────────────────────────────────
+const CHALLENGES = [
+    // ── TRIVIA ──────────────────────────────────────────────────────
+    {
+        id: 1, type: 'trivia', category: 'Hacoaj',
+        question: '¿Qué significa "Hacoaj" en hebreo?',
+        options: ['El amor', 'La fuerza', 'El agua', 'La paz'],
+        answer: 1
+    },
+    {
+        id: 2, type: 'trivia', category: 'Fútbol',
+        question: '¿Cuántos goles metió Lionel Messi en el Mundial de Qatar 2022?',
+        options: ['5 goles', '6 goles', '7 goles', '8 goles'],
+        answer: 2
+    },
+    {
+        id: 3, type: 'trivia', category: 'Historia judía',
+        question: '¿En qué año se fundó el Estado de Israel?',
+        options: ['1945', '1947', '1948', '1952'],
+        answer: 2
+    },
+    {
+        id: 4, type: 'trivia', category: 'Geografía',
+        question: '¿Cuál es la capital de Australia?',
+        options: ['Sídney', 'Melbourne', 'Brisbane', 'Canberra'],
+        answer: 3
+    },
+    {
+        id: 5, type: 'trivia', category: 'Fútbol',
+        question: '¿Quién tiene más Balones de Oro en la historia del fútbol?',
+        options: ['Cristiano Ronaldo', 'Lionel Messi', 'Ronaldinho', 'Zidane'],
+        answer: 1
+    },
+    {
+        id: 6, type: 'trivia', category: 'Historia',
+        question: '¿En qué año cayó el Muro de Berlín?',
+        options: ['1987', '1988', '1989', '1991'],
+        answer: 2
+    },
+    {
+        id: 7, type: 'trivia', category: 'Ciencia',
+        question: '¿Cuántos planetas tiene nuestro sistema solar?',
+        options: ['7', '8', '9', '10'],
+        answer: 1
+    },
+    {
+        id: 8, type: 'trivia', category: 'Cultura general',
+        question: '¿En qué país se originó el sushi?',
+        options: ['China', 'Corea', 'Japón', 'Vietnam'],
+        answer: 2
+    },
+    {
+        id: 9, type: 'trivia', category: 'Cultura general',
+        question: '¿Cuántos colores tiene el arcoíris?',
+        options: ['5', '6', '7', '8'],
+        answer: 2
+    },
+    {
+        id: 10, type: 'trivia', category: 'Música',
+        question: '¿De qué país es la cantante Shakira?',
+        options: ['Venezuela', 'Colombia', 'Argentina', 'México'],
+        answer: 1
+    },
+    // ── NUMÉRICO ────────────────────────────────────────────────────
+    {
+        id: 11, type: 'numeric', category: 'Historia',
+        question: '¿En qué año comenzó la Segunda Guerra Mundial?',
+        hint: 'Fue a fines de los años 30',
+        answer: 1939, unit: ''
+    },
+    {
+        id: 12, type: 'numeric', category: 'Geografía',
+        question: '¿Cuántos países tiene el continente africano?',
+        hint: 'Es el continente con más países del mundo',
+        answer: 54, unit: 'países'
+    },
+    {
+        id: 13, type: 'numeric', category: 'Ciencia',
+        question: '¿Cuántos huesos tiene el cuerpo humano adulto?',
+        hint: 'Está entre 200 y 215',
+        answer: 206, unit: 'huesos'
+    },
+    {
+        id: 14, type: 'numeric', category: 'Tecnología',
+        question: '¿En qué año se lanzó WhatsApp?',
+        hint: 'Fue antes del 2012',
+        answer: 2009, unit: ''
+    },
+    {
+        id: 15, type: 'numeric', category: 'Fútbol',
+        question: '¿Cuántos mundiales ganó Brasil a lo largo de la historia?',
+        hint: 'Es el país más ganador',
+        answer: 5, unit: 'mundiales'
+    },
+    // ── CONEXIONES ──────────────────────────────────────────────────
+    {
+        id: 16, type: 'connections', category: 'Cultura general',
+        question: 'Agrupá los 12 items en 3 categorías de 4',
+        groups: [
+            { name: '🌍 Capitales europeas',   items: ['París', 'Roma', 'Berlín', 'Madrid'],      color: '#FF6464' },
+            { name: '🌎 Países sudamericanos', items: ['Brasil', 'Chile', 'Perú', 'Uruguay'],      color: '#64C8FF' },
+            { name: '🎵 Sesiones de Bizarrap', items: ['Quevedo', 'Nicky Jam', 'Duki', 'Paulo Londra'], color: '#64FF96' }
+        ]
+    },
+    {
+        id: 17, type: 'connections', category: 'Pop culture',
+        question: 'Agrupá los 12 items en 3 categorías de 4',
+        groups: [
+            { name: '🦸 Películas de Marvel',  items: ['Endgame', 'Civil War', 'No Way Home', 'Wakanda Forever'], color: '#FF6464' },
+            { name: '🇦🇷 Artistas argentinos', items: ['Tini', 'Nicki Nicole', 'WOS', 'Maria Becerra'],          color: '#64C8FF' },
+            { name: '🇮🇱 Palabras en hebreo',  items: ['Shalom', 'Todá', 'Mazal', 'Sababa'],                   color: '#FFD700' }
+        ]
+    },
+    {
+        id: 18, type: 'connections', category: 'Cultura general',
+        question: 'Agrupá los 12 items en 3 categorías de 4',
+        groups: [
+            { name: '🍕 Comidas típicas',   items: ['Asado', 'Locro', 'Empanada', 'Alfajor'],               color: '#FF6464' },
+            { name: '🌎 Capitales de LATAM', items: ['Lima', 'Bogotá', 'Caracas', 'La Paz'],                 color: '#64C8FF' },
+            { name: '📺 Series de Netflix',  items: ['Stranger Things', 'Ozark', 'Squid Game', 'Dark'],     color: '#64FF96' }
+        ]
+    },
+    // ── ORDENAR ─────────────────────────────────────────────────────
+    {
+        id: 19, type: 'ordering', category: 'Historia',
+        question: 'Ordená estos eventos de más antiguo a más reciente',
+        items: ['Revolución Francesa', 'Segunda Guerra Mundial', 'Fundación de Israel', 'Caída del Muro de Berlín'],
+        correctOrder: [0, 1, 2, 3],
+        hints: ['1789', '1939', '1948', '1989']
+    },
+    {
+        id: 20, type: 'ordering', category: 'Fútbol',
+        question: 'Ordená estos países de mayor a menor cantidad de Mundiales ganados',
+        items: ['Brasil', 'Alemania', 'Argentina', 'Francia'],
+        correctOrder: [0, 1, 2, 3],
+        hints: ['5 copas', '4 copas', '3 copas', '2 copas']
+    },
+    {
+        id: 21, type: 'ordering', category: 'Tecnología',
+        question: 'Ordená estas redes sociales de más antigua a más reciente (año de lanzamiento)',
+        items: ['Facebook', 'Twitter', 'Instagram', 'TikTok'],
+        correctOrder: [0, 1, 2, 3],
+        hints: ['2004', '2006', '2010', '2016']
+    }
+];
+
+// ─────────────────────────────────────
+// ESTADO
+// ─────────────────────────────────────
+let currentUser      = null;
+let currentChallenge = null;
+let challengeStartTime = null;
+let timerInterval    = null;
+let selectedAnswer   = null;  // trivia
+let selectedItems    = [];    // connections
+let solvedGroups     = [];    // connections
+let orderedSlots     = [];    // ordering
+let pickedItem       = null;  // ordering
+let currentTab       = 'challenge';
+
+// ─────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────
+const $  = id => document.getElementById(id);
+const qs = sel => document.querySelector(sel);
+
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    $(id).classList.add('active');
+}
+
+function getInitials(name) {
+    if (!name) return '?';
+    return name.split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2);
+}
+
+function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function formatTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function showError(id, msg) {
+    const el = $(id);
+    if (!el) return;
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 3500);
+}
+
+const typeLabel = { trivia: 'Opción múltiple', numeric: 'Número exacto', connections: 'Conexiones', ordering: 'Ordenar' };
+const typeBadge = { trivia: 'tb-trivia', numeric: 'tb-numeric', connections: 'tb-connections', ordering: 'tb-ordering' };
+const typeEmoji = { trivia: '🎯 Trivia', numeric: '🔢 Numérico', connections: '🔗 Conexiones', ordering: '📋 Ordenar' };
+
+// ─────────────────────────────────────
+// LOCAL STORAGE
+// ─────────────────────────────────────
+const saveUser        = u  => localStorage.setItem('c58_user', JSON.stringify(u));
+const loadStoredUser  = () => { try { return JSON.parse(localStorage.getItem('c58_user')); } catch { return null; } };
+
+function saveSubmission(challengeId, score) {
+    const subs = getSubmissions();
+    subs[challengeId] = { score, date: new Date().toISOString() };
+    localStorage.setItem('c58_submissions', JSON.stringify(subs));
+}
+
+function getSubmissions() {
+    try { return JSON.parse(localStorage.getItem('c58_submissions')) || {}; } catch { return {}; }
+}
+
+// ─────────────────────────────────────
+// API  (Google Apps Script o demo local)
+// ─────────────────────────────────────
+async function apiCall(action, data = {}) {
+    if (API_URL === 'TU_URL_DE_APPS_SCRIPT_AQUI') return simulateAPI(action, data);
+
+    // Challenges siempre se sirven desde el JS local (no hace falta tenerlos en la planilla)
+    if (action === 'adminGetChallenges') {
+        const meta = await apiBackend('adminGetMeta', data);
+        return { success: true, challenges: CHALLENGES, activeId: meta.activeId || 0, totalSubs: meta.totalSubs || 0 };
+    }
+    if (action === 'getChallenge') {
+        const meta = await apiBackend('getChallenge', data);
+        if (!meta.success) return meta;
+        if (!meta.activeId) return { success: true, challenge: null };
+        const ch = CHALLENGES.find(c => c.id === parseInt(meta.activeId));
+        return { success: true, challenge: ch ? { ...ch, publishedAt: meta.publishedAt } : null,
+            alreadySubmitted: meta.alreadySubmitted, previousScore: meta.previousScore };
+    }
+
+    return apiBackend(action, data);
+}
+
+async function apiBackend(action, data = {}) {
+    try {
+        const params = new URLSearchParams({ action });
+        Object.entries(data).forEach(([k, v]) => {
+            params.set(k, typeof v === 'object' ? JSON.stringify(v) : v);
+        });
+        const r    = await fetch(`${API_URL}?${params.toString()}`, { method: 'GET', redirect: 'follow' });
+        const text = await r.text();
+        return JSON.parse(text);
+    } catch (e) {
+        console.error(e);
+        return { success: false, error: 'Error de conexión' };
+    }
+}
+
+// Demo local (sin backend)
+function simulateAPI(action, data) {
+    const users = JSON.parse(localStorage.getItem('c58_users') || '[]');
+
+    if (action === 'register') {
+        if (users.find(u => u.username === data.username))
+            return { success: false, error: 'Ese usuario ya existe' };
+        const user = { id: Date.now(), username: data.username, nombre: data.nombre, pin: data.pin, totalPoints: 0 };
+        users.push(user);
+        localStorage.setItem('c58_users', JSON.stringify(users));
+        return { success: true, user };
+    }
+
+    if (action === 'login') {
+        const user = users.find(u => u.username === data.username && u.pin === data.pin);
+        return user ? { success: true, user } : { success: false, error: 'Usuario o PIN incorrecto' };
+    }
+
+    if (action === 'getChallenge') {
+        const activeId    = parseInt(localStorage.getItem('c58_active') || '0');
+        const publishedAt = localStorage.getItem('c58_published') || new Date().toISOString();
+        const ch = CHALLENGES.find(c => c.id === activeId);
+        return { success: true, challenge: ch ? { ...ch, publishedAt } : null };
+    }
+
+    if (action === 'submit') {
+        const idx = users.findIndex(u => u.id === data.userId);
+        if (idx >= 0) { users[idx].totalPoints = (users[idx].totalPoints || 0) + data.score; }
+        localStorage.setItem('c58_users', JSON.stringify(users));
+        const subs = JSON.parse(localStorage.getItem('c58_all_subs') || '[]');
+        subs.push({ ...data, submittedAt: new Date().toISOString() });
+        localStorage.setItem('c58_all_subs', JSON.stringify(subs));
+        return { success: true };
+    }
+
+    if (action === 'leaderboard') {
+        const sorted = [...users].sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
+        return { success: true, leaderboard: sorted.map((u, i) => ({ rank: i+1, username: u.username, nombre: u.nombre, points: u.totalPoints || 0 })) };
+    }
+
+    if (action === 'adminGetChallenges') {
+        const activeId  = parseInt(localStorage.getItem('c58_active') || '0');
+        const totalSubs = JSON.parse(localStorage.getItem('c58_all_subs') || '[]').length;
+        return { success: true, challenges: CHALLENGES, activeId, totalSubs };
+    }
+
+    if (action === 'adminActivate') {
+        localStorage.setItem('c58_active',    String(data.challengeId));
+        localStorage.setItem('c58_published', new Date().toISOString());
+        return { success: true };
+    }
+
+    return { success: false, error: 'Acción desconocida' };
+}
+
+// ─────────────────────────────────────
+// AUTH
+// ─────────────────────────────────────
+async function doLogin() {
+    const username = $('login-username').value.trim().toLowerCase();
+    const pin      = $('login-pin').value.trim();
+    if (!username || !pin) return showError('login-error', 'Completá todos los campos');
+
+    if (username === 'admin' && pin === ADMIN_PIN) { enterAdmin(); return; }
+
+    const res = await apiCall('login', { username, pin });
+    if (!res.success) return showError('login-error', res.error || 'Error al ingresar');
+
+    currentUser = res.user;
+    saveUser(currentUser);
+    enterApp();
+}
+
+async function doRegister() {
+    const nombre   = $('reg-nombre').value.trim();
+    const username = $('reg-username').value.trim().toLowerCase();
+    const pin      = $('reg-pin').value.trim();
+    const pin2     = $('reg-pin2').value.trim();
+
+    if (!nombre || !username || !pin || !pin2) return showError('register-error', 'Completá todos los campos');
+    if (pin !== pin2)    return showError('register-error', 'Los PINs no coinciden');
+    if (pin.length !== 4 || isNaN(pin)) return showError('register-error', 'El PIN debe ser 4 dígitos');
+    if (/\s/.test(username)) return showError('register-error', 'El usuario no puede tener espacios');
+
+    const res = await apiCall('register', { nombre, username, pin });
+    if (!res.success) return showError('register-error', res.error || 'Error al registrarse');
+
+    currentUser = res.user;
+    saveUser(currentUser);
+    enterApp();
+}
+
+function showAdminEntry() {
+    $('login-username').value = 'admin';
+    $('login-pin').value = '';
+    $('login-pin').focus();
+}
+
+function doLogout() {
+    currentUser = null;
+    localStorage.removeItem('c58_user');
+    $('login-username').value = '';
+    $('login-pin').value = '';
+    showScreen('screen-login');
+}
+
+// ─────────────────────────────────────
+// ENTER APP / ADMIN
+// ─────────────────────────────────────
+function enterApp() {
+    $('home-username').textContent = (currentUser.nombre || currentUser.username).split(' ')[0];
+    $('home-pts').textContent = `${currentUser.totalPoints || 0} pts`;
+    showScreen('screen-home');
+    switchTab('challenge');
+}
+
+async function enterAdmin() {
+    showScreen('screen-admin');
+    loadAdminPanel();
+}
+
+// ─────────────────────────────────────
+// TABS
+// ─────────────────────────────────────
+function switchTab(tab) {
+    currentTab = tab;
+    ['challenge', 'leaderboard', 'history'].forEach(t => {
+        $(`nav-${t}`)?.classList.toggle('active', t === tab);
+    });
+    if (tab === 'challenge')   loadChallenge();
+    if (tab === 'leaderboard') loadLeaderboard();
+    if (tab === 'history')     loadHistory();
+}
+
+function showHomeTab(tab) {
+    showScreen('screen-home');
+    switchTab(tab);
+}
+
+// ─────────────────────────────────────
+// LOAD CHALLENGE (home tab)
+// ─────────────────────────────────────
+async function loadChallenge() {
+    $('home-content').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+    const res = await apiCall('getChallenge', { userId: currentUser?.id });
+    if (!res.success) { $('home-content').innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div>Error al cargar</div>`; return; }
+
+    if (!res.challenge) {
+        $('home-content').innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">⏳</div>
+                <div style="font-size:1rem; font-weight:600; color:white; margin-bottom:8px;">Sin desafío activo</div>
+                <div>El próximo Challenge 58 llega pronto.<br>Atento al grupo de WhatsApp! 📲</div>
+            </div>`;
+        return;
+    }
+
+    currentChallenge = res.challenge;
+
+    // Already submitted? (chequeo del servidor + localStorage como fallback)
+    const subs  = getSubmissions();
+    const score = res.previousScore || subs[currentChallenge.id]?.score;
+    if (res.alreadySubmitted || subs[currentChallenge.id]) {
+        $('home-content').innerHTML = `
+            <div class="card" style="text-align:center; margin-bottom:14px;">
+                <div style="font-size:2rem; margin-bottom:8px;">✅</div>
+                <div style="font-weight:700;">Ya respondiste este challenge</div>
+                <div style="color:var(--text-muted); font-size:0.82rem; margin-top:6px;">Obtuviste <strong class="text-gold">${score} puntos</strong></div>
+            </div>
+            ${challengePreviewHTML(currentChallenge, false)}
+            <button class="btn btn-ghost mt-10" onclick="switchTab('leaderboard')">Ver ranking 🏆</button>`;
+        return;
+    }
+
+    $('home-content').innerHTML = challengePreviewHTML(currentChallenge, true);
+}
+
+function challengePreviewHTML(ch, showPlay) {
+    const pub = new Date(ch.publishedAt);
+    const elapsedMin = (Date.now() - pub) / 60000;
+    const mult = Math.max(1.0, 2.0 - elapsedMin / 60).toFixed(1);
+    const fillPct = Math.min(100, (elapsedMin / 60) * 100);
+
+    return `
+        <div class="card" style="margin-bottom:12px;">
+            <div class="challenge-category">${ch.category}</div>
+            <div class="type-badge ${typeBadge[ch.type]}">${typeEmoji[ch.type]}</div>
+            <div class="challenge-question">${ch.question}</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:6px;">⚡ Multiplicador de velocidad actual: <strong class="text-gold">×${mult}</strong></div>
+            <div class="speed-bar"><div class="speed-fill" style="width:${100-fillPct}%"></div></div>
+            ${showPlay ? `<button class="btn btn-gold" style="margin-top:18px;" onclick="startChallenge()">Jugar ahora ⚡</button>` : ''}
+        </div>
+        <div class="card fs-sm text-muted">
+            <strong style="color:white;">¿Cómo se puntúa?</strong><br><br>
+            Puntaje final = <strong>Precisión</strong> × <strong>Multiplicador de velocidad</strong><br><br>
+            Al activarse el challenge el multiplicador es ×2.0 y baja gradualmente hasta ×1.0 después de 1 hora. Responder rápido y bien es la clave.
+        </div>`;
+}
+
+// ─────────────────────────────────────
+// START CHALLENGE (playing screen)
+// ─────────────────────────────────────
+function startChallenge() {
+    if (!currentChallenge) return;
+    // reset state
+    selectedAnswer = null;
+    selectedItems  = [];
+    solvedGroups   = [];
+    pickedItem     = null;
+    orderedSlots   = new Array((currentChallenge.items || []).length).fill(null);
+
+    challengeStartTime = Date.now();
+
+    $('playing-category').textContent   = currentChallenge.category;
+    $('playing-type-label').textContent = typeLabel[currentChallenge.type] || '';
+
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        $('timer-display').textContent = formatTime(Math.floor((Date.now() - challengeStartTime) / 1000));
+    }, 1000);
+    $('timer-display').textContent = '0:00';
+
+    renderPlayingChallenge();
+    showScreen('screen-playing');
+}
+
+function renderPlayingChallenge() {
+    const ch = currentChallenge;
+    let html = `<div class="challenge-question">${ch.question}</div>`;
+
+    if (ch.type === 'trivia') {
+        html += renderTrivia(ch);
+        $('playing-submit').style.display = 'none';
+    } else if (ch.type === 'numeric') {
+        html += renderNumeric(ch);
+        $('playing-submit').style.display = 'block';
+    } else if (ch.type === 'connections') {
+        html += renderConnections(ch);
+        $('playing-submit').style.display = 'none';
+    } else if (ch.type === 'ordering') {
+        html += renderOrdering(ch);
+        $('playing-submit').style.display = 'none'; // shows after all slots filled
+    }
+
+    $('playing-content').innerHTML = html;
+}
+
+// ── TRIVIA ──────────────────────────
+function renderTrivia(ch) {
+    return ch.options.map((opt, i) => `
+        <button class="option-btn" id="opt-${i}" onclick="selectTrivia(${i})">
+            <div class="option-letter">${['A','B','C','D'][i]}</div>
+            <div>${opt}</div>
+        </button>`).join('');
+}
+
+function selectTrivia(idx) {
+    if (selectedAnswer !== null) return;
+    selectedAnswer = idx;
+    const correct  = currentChallenge.answer;
+    currentChallenge.options.forEach((_, i) => {
+        const btn = $(`opt-${i}`);
+        if (!btn) return;
+        btn.style.pointerEvents = 'none';
+        if (i === correct) btn.classList.add('correct');
+        else if (i === idx) btn.classList.add('wrong');
+    });
+    setTimeout(doSubmit, 1400);
+}
+
+// ── NUMERIC ─────────────────────────
+function renderNumeric(ch) {
+    return `
+        <div class="hint-box">💡 ${ch.hint}</div>
+        <input type="number" class="numeric-input" id="numeric-answer" placeholder="?" inputmode="numeric" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:14px;width:100%;">
+        ${ch.unit ? `<div style="text-align:center; color:var(--text-muted); font-size:0.82rem; margin-top:8px;">${ch.unit}</div>` : ''}`;
+}
+
+// ── CONNECTIONS ─────────────────────
+function renderConnections(ch) {
+    const allItems = ch.groups.flatMap((g, gi) => g.items.map(item => ({ item, gi })));
+    const shuffled = shuffle(allItems);
+    currentChallenge._shuffled = shuffled;
+
+    let html = '<div id="solved-groups"></div>';
+    html += '<div class="connections-grid" id="conn-grid">';
+    shuffled.forEach((obj, i) => {
+        html += `<div class="connection-item" id="conn-${i}" onclick="selectConn(${i})">${obj.item}</div>`;
+    });
+    html += '</div>';
+    html += `
+        <div style="display:flex; gap:8px; margin-top:4px;">
+            <button class="btn btn-primary" onclick="checkConn()" style="flex:1;">Confirmar grupo</button>
+            <button class="btn btn-ghost btn-sm" onclick="clearConn()">Limpiar</button>
+        </div>
+        <div style="text-align:center; font-size:0.76rem; color:var(--text-muted); margin-top:9px;">Seleccioná 4 items del mismo grupo · ${ch.groups.length} grupos en total</div>`;
+    return html;
+}
+
+function selectConn(i) {
+    const el = $(`conn-${i}`);
+    if (!el || el.classList.contains('solved')) return;
+    if (el.classList.contains('selected')) {
+        el.classList.remove('selected');
+        selectedItems = selectedItems.filter(x => x !== i);
+    } else if (selectedItems.length < 4) {
+        el.classList.add('selected');
+        selectedItems.push(i);
+    }
+}
+
+function clearConn() {
+    selectedItems.forEach(i => $(`conn-${i}`)?.classList.remove('selected'));
+    selectedItems = [];
+}
+
+function checkConn() {
+    if (selectedItems.length !== 4) return;
+    const shuffled = currentChallenge._shuffled;
+    const gis = selectedItems.map(i => shuffled[i].gi);
+    const allSame = gis.every(g => g === gis[0]);
+
+    if (allSame) {
+        const gi    = gis[0];
+        const group = currentChallenge.groups[gi];
+        selectedItems.forEach(i => { $(`conn-${i}`)?.classList.add('solved'); });
+        solvedGroups.push(gi);
+
+        const solved = $('solved-groups');
+        if (solved) solved.innerHTML += `
+            <div class="solved-group" style="background:${group.color}22; border:1px solid ${group.color}55;">
+                <div class="solved-group-name">${group.name}</div>
+                <div class="solved-group-items">${group.items.join(' · ')}</div>
+            </div>`;
+        selectedItems = [];
+        if (solvedGroups.length === currentChallenge.groups.length) setTimeout(doSubmit, 700);
+    } else {
+        selectedItems.forEach(i => {
+            const el = $(`conn-${i}`);
+            el?.classList.remove('selected');
+            el?.classList.add('shake');
+            setTimeout(() => el?.classList.remove('shake'), 450);
+        });
+        selectedItems = [];
+    }
+}
+
+// ── ORDERING ────────────────────────
+function renderOrdering(ch) {
+    const shuffledIdx = shuffle([...Array(ch.items.length).keys()]);
+    currentChallenge._shuffledIdx = shuffledIdx;
+    currentChallenge._displayItems = shuffledIdx.map(i => ch.items[i]);
+    orderedSlots = new Array(ch.items.length).fill(null);
+
+    let html = '<div id="order-slots">';
+    for (let i = 0; i < ch.items.length; i++) {
+        html += `
+            <div class="order-slot" id="slot-${i}" onclick="placeInSlot(${i})">
+                <div class="slot-number">${i + 1}</div>
+                <div id="slot-txt-${i}" style="font-size:0.82rem; color:var(--text-muted);">Tocá un item para colocar aquí</div>
+            </div>`;
+    }
+    html += '</div>';
+    html += '<div style="font-size:0.76rem; color:var(--text-muted); margin:10px 0 6px;">Items disponibles:</div>';
+    html += '<div class="order-items-pool" id="order-pool">';
+    currentChallenge._displayItems.forEach((item, i) => {
+        html += `<div class="order-item" id="oitem-${i}" onclick="pickOrderItem(${i})">${item}</div>`;
+    });
+    html += '</div>';
+    return html;
+}
+
+function pickOrderItem(i) {
+    const el = $(`oitem-${i}`);
+    if (!el || el.style.display === 'none') return;
+    if (pickedItem !== null) $(`oitem-${pickedItem}`)?.classList.remove('picked');
+    if (pickedItem === i) { pickedItem = null; return; }
+    pickedItem = i;
+    el.classList.add('picked');
+}
+
+function placeInSlot(slotIdx) {
+    if (pickedItem === null) return;
+    const item = currentChallenge._displayItems[pickedItem];
+
+    // If slot occupied → return old item to pool
+    if (orderedSlots[slotIdx] !== null) {
+        const prev = orderedSlots[slotIdx];
+        $(`oitem-${prev}`).style.display = '';
+        const stxt = $(`slot-txt-${slotIdx}`);
+        if (stxt) { stxt.textContent = 'Tocá un item para colocar aquí'; stxt.style.color = 'var(--text-muted)'; }
+        $(`slot-${slotIdx}`)?.classList.remove('has-item');
+    }
+
+    orderedSlots[slotIdx] = pickedItem;
+    $(`oitem-${pickedItem}`).style.display = 'none';
+    const stxt = $(`slot-txt-${slotIdx}`);
+    if (stxt) { stxt.textContent = item; stxt.style.color = 'white'; }
+    $(`slot-${slotIdx}`)?.classList.add('has-item');
+    $(`oitem-${pickedItem}`)?.classList.remove('picked');
+    pickedItem = null;
+
+    if (orderedSlots.every(s => s !== null)) {
+        $('playing-submit').style.display = 'block';
+    }
+}
+
+// ─────────────────────────────────────
+// SUBMIT & SCORING
+// ─────────────────────────────────────
+async function doSubmit() {
+    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+
+    const ch          = currentChallenge;
+    const elapsedSec  = Math.floor((Date.now() - challengeStartTime) / 1000);
+    const pubElapsed  = (Date.now() - new Date(ch.publishedAt)) / 60000; // minutes since publish
+    const speedMult   = Math.max(1.0, 2.0 - pubElapsed / 60);
+
+    let accuracyScore = 0;
+    let answerData    = null;
+
+    if (ch.type === 'trivia') {
+        accuracyScore = (selectedAnswer === ch.answer) ? 100 : 0;
+        answerData    = selectedAnswer;
+
+    } else if (ch.type === 'numeric') {
+        const userVal = parseFloat($('numeric-answer')?.value) || 0;
+        const diff    = Math.abs(userVal - ch.answer) / Math.max(1, Math.abs(ch.answer));
+        accuracyScore = Math.max(0, Math.round(100 * (1 - Math.min(1, diff * 1.5))));
+        answerData    = userVal;
+
+    } else if (ch.type === 'connections') {
+        accuracyScore = Math.round((solvedGroups.length / ch.groups.length) * 100);
+        answerData    = solvedGroups.length;
+
+    } else if (ch.type === 'ordering') {
+        let correctCount = 0;
+        orderedSlots.forEach((itemIdx, slotIdx) => {
+            if (itemIdx !== null) {
+                const originalIdx = ch._shuffledIdx[itemIdx];
+                if (originalIdx === ch.correctOrder[slotIdx]) correctCount++;
+            }
+        });
+        accuracyScore = Math.round((correctCount / ch.items.length) * 100);
+        answerData    = JSON.stringify(orderedSlots);
+    }
+
+    const finalScore = Math.round(accuracyScore * speedMult);
+
+    // Save locally
+    saveSubmission(ch.id, finalScore);
+
+    // Send to backend
+    if (currentUser) {
+        await apiCall('submit', {
+            userId: currentUser.id, challengeId: ch.id,
+            answer: String(answerData), score: finalScore,
+            accuracy: accuracyScore, speedMultiplier: speedMult,
+            timeSeconds: elapsedSec
+        });
+        currentUser.totalPoints = (currentUser.totalPoints || 0) + finalScore;
+        saveUser(currentUser);
+        $('home-pts').textContent = `${currentUser.totalPoints} pts`;
+    }
+
+    showResult(finalScore, accuracyScore, speedMult, elapsedSec);
+}
+
+function showResult(score, accuracy, speedMult, elapsed) {
+    let emoji, msg;
+    if      (score >= 180) { emoji = '🔥'; msg = '¡Increíble! Fuiste rápido y acertado.'; }
+    else if (score >= 140) { emoji = '⚡'; msg = '¡Muy buen resultado!'; }
+    else if (score >= 100) { emoji = '👍'; msg = 'Buen puntaje. ¡A seguir mejorando!'; }
+    else if (score >= 50)  { emoji = '😅'; msg = 'Hay margen para mejorar. ¡La próxima!'; }
+    else                   { emoji = '💪'; msg = 'Uy... pero ya sumaste puntos igual.'; }
+
+    $('result-emoji').textContent    = emoji;
+    $('result-score').textContent    = score;
+    $('result-accuracy').textContent = `${accuracy}%`;
+    $('result-speed').textContent    = `×${speedMult.toFixed(1)}`;
+    $('result-time').textContent     = `${elapsed}s`;
+    $('result-message').textContent  = msg;
+
+    showScreen('screen-result');
+}
+
+// ─────────────────────────────────────
+// LEADERBOARD
+// ─────────────────────────────────────
+async function loadLeaderboard() {
+    $('home-content').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    const res = await apiCall('leaderboard');
+    if (!res.success || !res.leaderboard?.length) {
+        $('home-content').innerHTML = `<div class="empty-state"><div class="empty-icon">🏆</div>Todavía no hay puntuaciones. ¡Sé el primero!</div>`;
+        return;
+    }
+    const medals  = ['🥇','🥈','🥉'];
+    const colors  = ['#7C6EFA','#FF6464','#64C8FF','#FFD700','#64FF96','#FF9A3C'];
+    let html = `<div style="font-size:1rem; font-weight:700; margin-bottom:14px;">🏆 Ranking General</div>`;
+    res.leaderboard.forEach((e, i) => {
+        const isMe   = currentUser && e.username === currentUser.username;
+        const rank   = medals[i] || `#${e.rank}`;
+        const color  = colors[i % colors.length];
+        html += `
+            <div class="lb-row ${isMe ? 'me' : ''}">
+                <div class="lb-rank">${rank}</div>
+                <div class="lb-avatar" style="background:${color}">${getInitials(e.nombre || e.username)}</div>
+                <div class="lb-name">${e.nombre || e.username}${isMe ? ' <span style="font-size:0.68rem;opacity:0.5;">(vos)</span>' : ''}</div>
+                <div class="lb-pts">${e.points} pts</div>
+            </div>`;
+    });
+    $('home-content').innerHTML = html;
+}
+
+// ─────────────────────────────────────
+// HISTORY
+// ─────────────────────────────────────
+function loadHistory() {
+    const subs = getSubmissions();
+    const ids  = Object.keys(subs).reverse();
+    if (!ids.length) {
+        $('home-content').innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div>Todavía no participaste en ningún challenge.</div>`;
+        return;
+    }
+    let html = `<div style="font-size:1rem; font-weight:700; margin-bottom:14px;">📊 Tu historial</div>`;
+    ids.forEach(id => {
+        const s  = subs[id];
+        const ch = CHALLENGES.find(c => c.id === parseInt(id));
+        const d  = new Date(s.date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
+        html += `
+            <div class="card" style="margin-bottom:9px; display:flex; align-items:center; gap:12px;">
+                <div style="flex:1;">
+                    <div style="font-weight:600; font-size:0.88rem;">${(ch?.question || `Challenge #${id}`).slice(0, 52)}…</div>
+                    <div style="font-size:0.73rem; color:var(--text-muted); margin-top:3px;">${d} · ${ch?.category || ''} · ${typeEmoji[ch?.type] || ''}</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-weight:800; color:var(--gold); font-size:1.1rem;">${s.score}</div>
+                    <div style="font-size:0.68rem; color:var(--text-muted);">pts</div>
+                </div>
+            </div>`;
+    });
+    $('home-content').innerHTML = html;
+}
+
+// ─────────────────────────────────────
+// ADMIN PANEL
+// ─────────────────────────────────────
+async function loadAdminPanel() {
+    $('admin-content').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    const res = await apiCall('adminGetChallenges');
+    if (!res.success) { $('admin-content').innerHTML = '<div style="color:var(--red)">Error al cargar</div>'; return; }
+
+    const { challenges, activeId, totalSubs } = res;
+
+    $('admin-stats').innerHTML = `
+        <div style="flex:1; background:rgba(255,255,255,0.06); border-radius:12px; padding:12px; text-align:center;">
+            <div style="font-size:1.4rem; font-weight:800; color:var(--gold)">${totalSubs || 0}</div>
+            <div style="font-size:0.7rem; color:var(--text-muted);">RESPUESTAS HOY</div>
+        </div>
+        <div style="flex:1; background:rgba(255,255,255,0.06); border-radius:12px; padding:12px; text-align:center;">
+            <div style="font-size:1.4rem; font-weight:800; color:var(--primary-light)">${challenges.length}</div>
+            <div style="font-size:0.7rem; color:var(--text-muted);">CHALLENGES TOTALES</div>
+        </div>`;
+
+    let html = `<div style="font-size:0.82rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Elegí un challenge para activar:</div>`;
+    challenges.forEach(ch => {
+        const isActive = ch.id === activeId;
+        html += `
+            <div class="admin-card ${isActive ? 'active-challenge' : ''}">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                    <div class="type-badge ${typeBadge[ch.type]}">${typeEmoji[ch.type]}</div>
+                    ${isActive ? '<span style="color:var(--gold); font-size:0.72rem; font-weight:700;">● ACTIVO</span>' : ''}
+                </div>
+                <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:1px;">${ch.category}</div>
+                <div style="font-weight:600; font-size:0.88rem; margin-bottom:10px;">${ch.question}</div>
+                <button class="btn ${isActive ? 'btn-ghost' : 'btn-primary'} btn-sm" onclick="adminActivate(${ch.id})">
+                    ${isActive ? '✓ Challenge activo' : 'Activar →'}
+                </button>
+            </div>`;
+    });
+    $('admin-content').innerHTML = html;
+}
+
+async function adminActivate(id) {
+    const res = await apiCall('adminActivate', { challengeId: id });
+    if (res.success) {
+        loadAdminPanel();
+        // small toast
+        const t = document.createElement('div');
+        t.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#00E676;color:#0a0a1a;padding:10px 20px;border-radius:20px;font-weight:700;font-size:0.85rem;z-index:9999;';
+        t.textContent = '✓ Challenge activado — ¡Compartí el link! 📲';
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 3000);
+    }
+}
+
+// ─────────────────────────────────────
+// INIT
+// ─────────────────────────────────────
+(function init() {
+    const stored = loadStoredUser();
+    if (stored) { currentUser = stored; enterApp(); }
+    else showScreen('screen-login');
+})();
+</script>
+</body>
+</html>
